@@ -97,6 +97,10 @@ read_matrix:
     jal ra, fread
     bne a0, s3, fread_fail
 
+    mv a1, s1
+    jal ra, fclose
+    bnez a0, fclose_fail
+
     mv a0, s4
     lw a1, 0(sp)
     lw a2, 4(sp)
