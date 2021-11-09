@@ -216,9 +216,11 @@ class TestWriteMatrix(TestCase):
         # load output file name into a0 register
         t.input_write_filename("a0", outfile)
         # load input array and other arguments
-        raise NotImplementedError("TODO")
-        # TODO
-        # call `write_matrix` function
+        input_array = [1,2,3,4,5,6,7,8,9]
+        arr = t.array(input_array)
+        t.input_array("a1", arr)
+        t.input_scalar("a2", 3)
+        t.input_scalar("a3", 3)
         t.call("write_matrix")
         # generate assembly and run it through venus
         t.execute(fail=fail, code=code)

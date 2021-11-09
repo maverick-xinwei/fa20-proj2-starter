@@ -35,30 +35,47 @@ write_matrix:
 
     mv s1, a1 # s1 pointer to matrix mem
     mv s2, a2 # s2 num of rows in matrix
-    mv s3, a3 # s3 num of rows in matrix
+    mv s3, a3 # s3 num of cols in matrix
 
     # calling fopen
     mv a1, a0
-    li a2, 0
+    li a2, 1 # write
     
     jal ra, fopen
     beqz a0, fopen_fail
     # s5 file handler
     mv s5, a0
+
+    # fwrite cols and rows
+    addi sp, sp, -8
+    sw s2, 0(sp)
+    sw s3, 4(sp)
+
+    mv a1, s5
+    mv a2, sp
+    li a3, 2
+    li a4, 4
+    jal ra, fwrite
+    li s4, 2 
+    bne a0, s4, fwrite_fail  
+
+    lw s2, 0(sp)
+    lw s3, 4(sp)
+    addi sp, sp, 8
+
     
     # calling fwrite
     mul s4, s2, s3
-    mv a1, a0
+    mv a1, s5
     mv a2, s1
     mv a3, s4
     li a4, 4
-
     jal ra, fwrite
+    bne a0, s4, fwrite_fail  
 
-    bne a0, s4, fwrtie_fail  
-
+    # fclose
     mv a1, s5
-    fclose
+    jal ra, fclose
     bne a0, zero, fclose_fail
 
 
