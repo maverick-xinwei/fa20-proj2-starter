@@ -25,16 +25,62 @@
 write_matrix:
 
     # Prologue
+    addi sp, sp -24
+    sw ra, 0(sp)
+    sw s1, 4(sp)
+    sw s2, 8(sp)
+    sw s3, 12(sp)
+    sw s4, 16(sp)
+    sw s5, 20(sp)
 
+    mv s1, a1 # s1 pointer to matrix mem
+    mv s2, a2 # s2 num of rows in matrix
+    mv s3, a3 # s3 num of rows in matrix
 
+    # calling fopen
+    mv a1, a0
+    li a2, 0
+    
+    jal ra, fopen
+    beqz a0, fopen_fail
+    # s5 file handler
+    mv s5, a0
+    
+    # calling fwrite
+    mul s4, s2, s3
+    mv a1, a0
+    mv a2, s1
+    mv a3, s4
+    li a4, 4
 
+    jal ra, fwrite
 
+    bne a0, s4, fwrtie_fail  
 
+    mv a1, s5
+    fclose
+    bne a0, zero, fclose_fail
 
 
 
 
     # Epilogue
-
+    lw ra, 0(sp)
+    lw s1, 4(sp)
+    lw s2, 8(sp)
+    lw s3, 12(sp)
+    lw s4, 16(sp)
+    lw s5, 20(sp)
+    addi sp, sp 24
 
     ret
+
+fopen_fail:
+    li  a1, 93 
+    jal ra, exit2
+fwrite_fail:
+    li  a1, 94 
+    jal ra, exit2
+fclose_fail:
+    li  a1, 95 
+    jal ra, exit2
