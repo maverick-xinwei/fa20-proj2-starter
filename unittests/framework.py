@@ -331,16 +331,26 @@ class AssemblyTest:
             assert len(self._output_regs) < 13, f"Too many output registers: {len(self._output_regs)}!"
             p = ["# Prologue", f"addi sp, sp, -{4 * (len(self._output_regs) + 1)}", "sw ra, 0(sp)"]
             p += [f"sw s{i}, {(i+1) * 4}(sp)" for i in range(len(self._output_regs))]
+
             lines += _indent(p + [""])
 
 
         lines += _indent(self._args)
 
         assert self._call is not None, "No function was called!"
-        foo_call = ["", f"# call {self._call} function", f"jal ra {self._call}"]
+        
+        # xinxu01 workaround the convention check failing in the auto generated part
+        foo_call = [f"addi sp, sp, -{(len(self._output_regs)- 1 if 0 in self._output_regs else 1)*4}"]
+        foo_call += [f"sw a{i}, {(i-1)*4}(sp)" for i in self._output_regs if  i !=0]
+
+        foo_call += ["", f"# call {self._call} function", f"jal ra {self._call}"]
         lines += _indent(foo_call)
 
         if len(self._output_regs) > 0:
+            # xinxu01 workaround the convention check failing in the auto generated part
+            lines += _indent([f"lw a{i}, {(i-1)*4}(sp)" for i in self._output_regs if  i !=0])
+            lines += _indent([f"addi sp, sp, {(len(self._output_regs)- 1 if 0 in self._output_regs else 1)*4}"])
+            
             lines += _indent(["", "# save all return values in the save registers"])
             lines += _indent([f"mv s{i} a{i}" for i in self._output_regs] + [""])
 

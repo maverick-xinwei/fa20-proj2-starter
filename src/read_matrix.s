@@ -27,7 +27,9 @@
 read_matrix:
 
     # Prologue
-    addi sp, sp, -20
+    addi sp, sp, -28
+    sw a2, 24(sp)
+    sw a1, 20(sp)
     sw ra, 16(sp) 
     sw s4, 12(sp) 
     sw s3, 8(sp) 
@@ -35,36 +37,52 @@ read_matrix:
     sw s1, 0(sp) 
 	
 
+    mv s2, a1
+    mv s3, a2
+
     # Calling fopen
     mv a1, a0     # fopen's a1=filepath
     mv a2, zero   # fopen's a2 = 0 ("r")
     jal ra,fopen         # return file descriptor in a0
     mv s1, a0     # save a0 to s1
     beqz a0, fopen_fail
+    # s1 file descriptor
 
 
 
-    # malloc to allocate 2 int (2*4 bytes)
-    li a0, 8 
-    jal ra, malloc
-    beqz a0, malloc_fail
+#   # malloc to allocate 2 int (2*4 bytes)
+#   li a0, 8 
+#   jal ra, malloc
+#   beqz a0, malloc_fail
+
 
     # Calling fread
-    mv s2, a0
     mv a1, s1     # fread a1 = file descriptor
     mv a2, s2     # a2: allocated buffer
-    li a3, 8      # a3: number of bytes to read
+    li a3, 4      # a3: number of bytes to read
     jal ra,fread
-    li a3, 8
+    li a3, 4
+    bne a0, a3, fread_fail
+
+    mv a1, s1     # fread a1 = file descriptor
+    mv a2, s3     # a2: allocated buffer
+    li a3, 4      # a3: number of bytes to read
+    jal ra,fread
+    li a3, 4
     bne a0, a3, fread_fail
 
     #  num of rows
     lw t0, 0(s2)
     #  num of cols
-    lw t1, 4(s2)
+    lw t1, 0(s3)
+
+    addi sp, sp, -8
+    sw s2, 0(sp)
+    sw s3, 4(sp)
 
     # num of bytes in matrix
     mul s3, t0, t1
+    slli s3, s3, 2
 
     # malloc number of bytes rows*cols 
     mv a0, s3 
@@ -80,16 +98,19 @@ read_matrix:
     bne a0, s3, fread_fail
 
     mv a0, s4
-    lw a1, 0(s2) 
-    lw a2, 4(s2) 
+    lw a1, 0(sp)
+    lw a2, 4(sp)
+    addi sp, sp, 8
 
     # Epilogue
+    lw a2, 24(sp)
+    lw a1, 20(sp)
     lw ra, 16(sp) 
     lw s4, 12(sp) 
     lw s3, 8(sp) 
     lw s2, 4(sp) 
     lw s1, 0(sp) 
-    addi sp, sp, 20
+    addi sp, sp, 28
 
 
     ret
@@ -108,5 +129,3 @@ fread_fail:
     jal ra, exit2
 
 fclose_fail:
-    li a1, 92
-    jal ra, exit2
