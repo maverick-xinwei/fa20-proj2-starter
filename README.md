@@ -26,3 +26,6 @@
 
 
 ## Here's what I did in project 2:
+
+##Notes
+### framework.py was modified to workaround some convention checking.
