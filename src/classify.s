@@ -67,8 +67,8 @@ classify:
     mv s5, a0  # s5 stores rows and colums
 
     mv a0, s1
-    lw a1, 0(s5)
-    lw a2, 4(s5)
+    mv a1, s5
+    addi a2, s5, 4
     jal ra, read_matrix
     # m0_path is not needed anymore onward
     mv s1, a0   # s1 :  store m0 mem pointer
@@ -84,8 +84,8 @@ classify:
     mv s6, a0  # s6 stores rows and colums
 
     mv a0, s2
-    lw a1, 0(s6)
-    lw a2, 4(s6)
+    mv a1, s6
+    addi a2, s6, 4
     jal ra, read_matrix
     # m1_path is not needed anymore onward
     mv s2, a0   # s2 :  store m1 mem pointer
@@ -101,8 +101,8 @@ classify:
     mv s7, a0  # s7 stores rows and colums
 
     mv a0, s3
-    lw a1, 0(s7)
-    lw a2, 4(s7)
+    mv a1, s7
+    addi a2, s7, 4
     jal ra, read_matrix
     # input_path is not needed anymore onward
     mv s3, a0   # s3 :  store input mem pointer
